@@ -5,13 +5,13 @@ import (
 	"log"
 	"net"
 	"sync"
+	"github.com/Masa-44/is105sem03/mycrypt" 
 )
 
 func main() {
-
 	var wg sync.WaitGroup
 
-	server, err := net.Listen("tcp", "172.17.0.3:8300")
+	server, err := net.Listen("tcp", "172.17.0.2:8300")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,23 +34,19 @@ func main() {
 						if err != io.EOF {
 							log.Println(err)
 						}
-						return // fra for løkke
+						return
 					}
-					switch msg := string(buf[:n]); msg {
-  				        case "ping":
-						_, err = c.Write([]byte("pong"))
-					default:
-						_, err = c.Write(buf[:n])
-					}
-					if err != nil {
-						if err != io.EOF {
-							log.Println(err)
-						}
-						return // fra for løkke
-					}
+					log.Println("Mottatt kryptert melding: ", string(buf[:n]))
+					
+					dekryptertMelding := mycrypt.Krypter([]rune(string(buf[:n])), mycrypt.ALF_SEM03, len(mycrypt.ALF_SEM03)-4)
+					log.Println("Dekryptert melding: ", string(dekryptertMelding))
+					
+					// Gjør noe med den dekrypterte meldingen her
+					
 				}
 			}(conn)
 		}
 	}()
+
 	wg.Wait()
 }
